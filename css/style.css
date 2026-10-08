@@ -361,3 +361,33 @@ img { -webkit-user-drag: none; user-drag: none; -webkit-user-select: none; user-
 .protect-toast.on { opacity: 1; transform: translate(-50%, 0); }
 @media print { body * { visibility: hidden !important; } body::after { content: "© Renuka Sivakumar — printing is disabled. Contact renukabr2822@gmail.com for a portfolio copy."; visibility: visible; position: fixed; top: 40%; left: 10%; right: 10%; font: 18px serif; color: #000; } }
 .p-sheets figcaption, .p-renders figcaption { z-index: 2; }
+
+/* ---------- 3D study models ---------- */
+.model-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 3; pointer-events: none; }
+.model-canvas[data-layer="overlay"] { z-index: 71; }
+.card-model { position: absolute; right: 14px; bottom: 14px; z-index: 3; width: 40%; aspect-ratio: 1 / 1; border-radius: 14px;
+  background: radial-gradient(ellipse at 50% 35%, rgba(42,37,33,0.92), rgba(12,11,10,0.94)); border: 1px solid var(--line-2);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); box-shadow: 0 20px 40px rgba(0,0,0,0.35); transition: transform .6s var(--ease); }
+.card.tall .card-model { width: 56%; }
+.card:hover .card-model { transform: scale(1.06); }
+.card-model .mono { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; font-size: 8.5px; color: var(--gold-2); opacity: .8; }
+.p-model { position: relative; margin: 0 var(--pad) 14vh; height: min(78vh, 760px); border-radius: 20px; border: 1px solid var(--line);
+  background: radial-gradient(ellipse at 50% 40%, #2a2420 0%, #161311 55%, #0c0b0a 100%); cursor: grab; overflow: hidden; }
+.p-model.grabbing { cursor: grabbing; }
+.p-model[data-mode="blueprint"] { background: radial-gradient(ellipse at 50% 40%, #12305a 0%, #0b1a33 60%, #081426 100%); }
+.p-model[data-mode="night"] { background: radial-gradient(ellipse at 50% 40%, #151a28 0%, #090b11 60%, #050608 100%); }
+.p-model[data-mode="blueprint"]::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(127,176,255,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(127,176,255,.12) 1px, transparent 1px); background-size: 40px 40px; }
+.p-model-ui { position: absolute; left: 16px; right: 16px; top: 16px; z-index: 2; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; pointer-events: none; }
+.seg { display: flex; gap: 4px; padding: 4px; border-radius: 100px; background: rgba(12,11,10,0.6); border: 1px solid var(--line); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); pointer-events: auto; }
+.seg button { padding: 8px 14px; border-radius: 100px; font-size: 12px; color: var(--bone-2); white-space: nowrap; transition: background .3s, color .3s; }
+.seg button:hover { color: var(--bone); }
+.seg button.on { background: var(--gold); color: var(--ink); }
+.p-model-note { position: absolute; left: 0; right: 0; bottom: 16px; text-align: center; color: var(--muted); font-size: 9.5px; z-index: 2; pointer-events: none; }
+@media (max-width: 820px) {
+  .card-model { width: 46%; right: 10px; bottom: 10px; border-radius: 10px; }
+  .card.tall .card-model { width: 60%; }
+  .card-model .mono { display: none; }
+  .p-model { height: 72vh; margin-bottom: 8vh; border-radius: 14px; }
+  .p-model-ui { left: 10px; right: 10px; top: 10px; }
+  .seg button { padding: 7px 10px; font-size: 11px; }
+}

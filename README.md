@@ -75,6 +75,13 @@ Add `?lite` to the URL to force the light version on slow machines (it also swit
 
 ---
 
+## 3D project models
+
+Each project has a rotating 3D **study model**. It appears on the home-page card (hover to explode) and on the project page, with Blueprint / Day / Night lighting, Explode, Rebuild, Linework and Auto-rotate.
+
+- `model:` in `js/data.js` picks the model: `residence`, `hotel`, `mandapam`, `school`, `court`, `bedroom`, `hall` or `clinic`. Reuse the closest type for a new project, or add a new builder in `js/models.js`.
+- **To show the real model:** in SketchUp choose *File → Export → 3D Model → glTF (.glb)*. Put it in `assets/models/`, then set `modelFile: "assets/models/09.glb"` on the project. It loads in place of the study model with the same controls. Note: a .glb file can be downloaded by visitors, so export a simplified version.
+
 ## Protecting the work
 
 - **Images are encrypted.** Every render, drawing and photo is stored scrambled as `.bin`, so cloning the repo, downloading files or digging through the page source only gets unreadable data. The site decodes them in memory just for display.

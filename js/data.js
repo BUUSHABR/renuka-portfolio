@@ -6,6 +6,9 @@
         and drawings in    assets/sheets/   (plans, sections, elevations).
      2. Copy one project block below, paste it at the TOP of `projects`,
         and change the text + image file names.
+        `model` picks the 3D study model (residence, hotel, mandapam,
+        school, court, bedroom, hall, clinic) — or set `modelFile` to a
+        .glb exported from SketchUp to show the real model.
         Each image has a `label` — what the picture shows
         ("Ground floor plan", "Living room"). Name image files by
         what they show, e.g. assets/sheets/09-ground-floor-plan.jpg
@@ -52,6 +55,8 @@ window.PORTFOLIO = {
         "A 5,447 sq.ft modern contemporary home that blends functionality with elegance. The five-bedroom house features a foyer, living and drawing hall, gym and a private lounge, each tailored to the client's requirements.",
         "Developed under the guidance of Architect Bhuvanasundar, the design emphasises open spaces, natural light and a comfortable environment for today's lifestyle.",
       ],
+      model: "residence",            // 3D study model (see js/models.js)
+      // modelFile: "assets/models/01.glb", // optional: real exported model replaces it
       cover: "assets/renders/01-front-view.jpg",
       renders: [{ src: "assets/renders/01-front-view.jpg", label: "Front view" }],
       sheets: [
@@ -76,6 +81,8 @@ window.PORTFOLIO = {
         "A 36,767 sq.ft hotel with stilt parking, dual entry and modern architecture. The ground to second floors hold rooms, the third floor features a banquet hall and dining, and the terrace offers a swimming pool.",
         "The exterior combines exposed concrete, travertine stone, aluminium louvers and structural glazing.",
       ],
+      model: "hotel",            // 3D study model (see js/models.js)
+      // modelFile: "assets/models/02.glb", // optional: real exported model replaces it
       cover: "assets/renders/02-street-view.jpg",
       renders: [{ src: "assets/renders/02-street-view.jpg", label: "Street view" }],
       sheets: [
@@ -104,6 +111,8 @@ window.PORTFOLIO = {
         "A proposed kalyana mandapam with a built-up area of 72,659 sq.ft. The stilt floor includes a kitchen, dining area, mini hall and parking for 64 cars. The first floor holds the main marriage hall, bride and groom rooms, buffet, dining and an additional kitchen.",
         "The hall and its dining and kitchen areas sit under a sheet roof, while the rest has a concrete roof. Outside, a refined plaster finish in contrasting light and dark tones, vertical walls with strip lights and stone-finished elements give the facade a bold rhythm.",
       ],
+      model: "mandapam",            // 3D study model (see js/models.js)
+      // modelFile: "assets/models/03.glb", // optional: real exported model replaces it
       cover: "assets/renders/03-entrance-view.jpg",
       renders: [{ src: "assets/renders/03-entrance-view.jpg", label: "Entrance view" }],
       sheets: [
@@ -127,6 +136,8 @@ window.PORTFOLIO = {
         "A G+2 school spanning 20,330 sq.ft, planned around a central lawn and courtyard. The layout holds classrooms, labs, a library and toilets as per academic norms.",
         "The elevation blends brick stone and exposed concrete finishes with steel trellis and vertical elements, for a modern yet robust appearance.",
       ],
+      model: "school",            // 3D study model (see js/models.js)
+      // modelFile: "assets/models/04.glb", // optional: real exported model replaces it
       cover: "assets/renders/04-campus-view.jpg",
       renders: [{ src: "assets/renders/04-campus-view.jpg", label: "Campus view" }],
       sheets: [
@@ -152,6 +163,8 @@ window.PORTFOLIO = {
         "A 3,696 sq.ft shuttle court for Advaita Montessori School, designed with a robust steel structure of columns and trusses.",
         "The exterior is clad in ACP panels with integrated cove lighting, so the building feels at home on the school's contemporary campus.",
       ],
+      model: "court",            // 3D study model (see js/models.js)
+      // modelFile: "assets/models/05.glb", // optional: real exported model replaces it
       cover: "assets/renders/05-approach-view.jpg",
       renders: [{ src: "assets/renders/05-approach-view.jpg", label: "Approach view" }, { src: "assets/renders/05-facade-panel-detail.jpg", label: "Facade panel detail" }],
       sheets: [
@@ -174,6 +187,8 @@ window.PORTFOLIO = {
         "The 340 sq.ft daughter's bedroom is designed in an elegant classical style: wooden-finish wardrobes, plaster-finished walls and beadings that run through the wardrobe panels.",
         "Intricate mouldings and custom carvings add detail, while a luxurious bed, mirrored wardrobes and a cosy seating corner sit in warm light.",
       ],
+      model: "bedroom",            // 3D study model (see js/models.js)
+      // modelFile: "assets/models/06.glb", // optional: real exported model replaces it
       cover: "assets/renders/06-daughters-room.jpg",
       renders: [
         { src: "assets/renders/06-daughters-room.jpg", label: "Daughter's room" },
@@ -204,6 +219,8 @@ window.PORTFOLIO = {
         "A contemporary marriage hall for up to 800 guests. Large window openings frame views of the adjoining lawn for a seamless indoor-outdoor experience.",
         "The design emphasises natural light, openness and functionality, blending modern aesthetics with comfort for grand celebrations.",
       ],
+      model: "hall",            // 3D study model (see js/models.js)
+      // modelFile: "assets/models/07.glb", // optional: real exported model replaces it
       cover: "assets/renders/07-marriage-hall.jpg",
       renders: [
         { src: "assets/renders/07-marriage-hall.jpg", label: "Marriage hall" },
@@ -233,6 +250,8 @@ window.PORTFOLIO = {
         "A modern interior in pastel shades that create a calm, soothing ambience. Walls are finished in soft paint tones, doors in elegant wooden laminate, and a sleek wooden reception table adds warmth.",
         "The recovery room pairs rich wood panelling above with sleek marble below for a clean, hygienic feel; soft lighting, privacy curtains and minimal décor keep it restful.",
       ],
+      model: "clinic",            // 3D study model (see js/models.js)
+      // modelFile: "assets/models/08.glb", // optional: real exported model replaces it
       cover: "assets/renders/08-consultation-room.jpg",
       renders: [
         { src: "assets/renders/08-consultation-room.jpg", label: "Consultation room" },

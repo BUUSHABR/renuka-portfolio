@@ -68,11 +68,21 @@ $("#countInt").textContent = pad2(counts.Interior);
 $("#reelTrack").innerHTML = D.projects
   .map((p, i) => `<article class="card ${i % 3 === 1 ? "tall" : ""}" data-open="${i}" data-cat="${esc(p.category)}" data-cursor="view">
       <div class="card-media"><span class="card-num">${p.no}</span><span class="card-type mono">${esc(p.type)}</span>
-        <img data-src="${esc(p.cover)}" alt="" loading="lazy" /></div>
+        <img data-src="${esc(p.cover)}" alt="" loading="lazy" />
+        <div class="card-model" data-model="${i}"><span class="mono">3D model · hover to explode</span></div></div>
       <div class="card-info"><h3>${esc(p.title)}</h3><span class="mono">${esc(p.location.split(",")[0])}</span></div>
     </article>`)
   .join("");
 vault.hydrate($("#reelTrack"));
+let views = null;
+try {
+  const { createViews } = await import("./views.js");
+  views = createViews();
+  $$(".card-model").forEach((el) => {
+    const p = D.projects[+el.dataset.model];
+    views.add(el, p.model, { file: p.modelFile, hoverExplode: true });
+  });
+} catch (e) { console.warn("models disabled", e); $$(".card-model").forEach((el) => el.remove()); }
 $("#reel").insertAdjacentHTML("afterend", `<div class="reel-progress"><i id="reelBar"></i></div>`);
 
 $("#index").innerHTML = D.projects
@@ -330,12 +340,42 @@ function openProject(i) {
         <div class="p-fact"><span class="mono">Role</span><b>${esc(p.role || "Junior Architect")}</b></div></div>
       <div class="p-desc">${(p.description || []).map((t) => `<p>${esc(t)}</p>`).join("")}</div>
     </div>
+    ${views && p.model ? `<div class="p-section-title"><h3>3D model</h3><span class="mono">Drag to rotate</span></div>
+      <div class="p-model" id="pModel">
+        <div class="p-model-ui">
+          <div class="seg" role="radiogroup" aria-label="Lighting">
+            <button data-m="blueprint">Blueprint</button><button data-m="day" class="on">Day</button><button data-m="night">Night</button>
+          </div>
+          <div class="seg">
+            <button data-a="explode">Explode</button><button data-a="rebuild">Rebuild</button><button data-a="lines">Linework</button><button data-a="spin" class="on">Auto-rotate</button>
+          </div>
+        </div>
+        <div class="p-model-note mono">Study model interpreted from the project renders &amp; drawings</div>
+      </div>` : ""}
     ${renders.length > 1 ? `<div class="p-section-title"><h3>Views</h3><span class="mono">${pad2(renders.length)} renders</span></div>
       <div class="p-renders">${renders.map((r, k) => `<figure data-lb="r" data-k="${k}"><img data-src="${esc(r.src)}" alt="${esc(r.label)}" loading="lazy" />${r.label ? `<figcaption>${esc(r.label)}</figcaption>` : ""}</figure>`).join("")}</div>` : ""}
     ${sheets.length ? `<div class="p-section-title"><h3>Drawings</h3><span class="mono">${pad2(sheets.length)} sheets</span></div>
       <div class="p-sheets">${sheets.map((s, k) => `<figure data-lb="s" data-k="${k}"><img data-src="${esc(s.src)}" alt="${esc(s.label)}" loading="lazy" /><figcaption>${esc(s.label || pad2(k + 1))}</figcaption></figure>`).join("")}</div>` : ""}
     <a class="p-next" data-next="${(i + 1) % D.projects.length}"><span class="mono">Next project — ${next.no}</span><h4>${esc(next.title)}</h4><img data-src="${esc(next.cover)}" alt="" loading="lazy" /></a>`;
   vault.hydrate(projScroll, true);
+  if (views) {
+    views.removeLayer("overlay");
+    const el = $("#pModel", projScroll);
+    if (el) {
+      const mv = views.add(el, p.model, { file: p.modelFile, layer: "overlay", drag: true });
+      $$("[data-m]", el).forEach((b) => b.addEventListener("click", () => {
+        mv.mode(b.dataset.m); $$("[data-m]", el).forEach((x) => x.classList.toggle("on", x === b));
+      }));
+      $$("[data-a]", el).forEach((b) => b.addEventListener("click", () => {
+        const a = b.dataset.a;
+        if (a === "explode") { const on = mv.explode(); b.classList.toggle("on", on); b.textContent = on ? "Assemble" : "Explode"; }
+        if (a === "rebuild") { mv.rebuild(); const ex = $("[data-a=explode]", el); ex.classList.remove("on"); ex.textContent = "Explode"; }
+        if (a === "lines") b.classList.toggle("on", mv.lines());
+        if (a === "spin") b.classList.toggle("on", mv.spin());
+      }));
+    }
+    views.setLayer("overlay");
+  }
   projScroll.scrollTop = 0;
   proj.classList.add("open");
   proj.setAttribute("aria-hidden", "false");
@@ -351,11 +391,13 @@ function openProject(i) {
   $(".p-next", projScroll).addEventListener("click", (e) => {
     const n = +e.currentTarget.dataset.next;
     proj.classList.remove("open");
+    views && views.setLayer("none");
     setTimeout(() => openProject(n), 650);
   });
 }
 function closeProject() {
   proj.classList.remove("open");
+  if (views) { views.setLayer("page"); setTimeout(() => views.removeLayer("overlay"), 900); }
   proj.setAttribute("aria-hidden", "true");
   lenis && lenis.start();
   stage && stage.setPaused(parseFloat(getComputedStyle(root).getPropertyValue("--stage")) < 0.02);
