@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ar. Renuka Sivakumar — Architect</title>
+  <meta name="description" content="Portfolio of Ar. Renuka Sivakumar — architect working on residences, hotels, mandapams, schools and interiors across Tamil Nadu. Selected works 2022–2025." />
+  <meta property="og:title" content="Ar. Renuka Sivakumar — Architect" />
+  <meta property="og:description" content="Selected works 2022–2025: residences, hospitality, mandapams, schools and interiors." />
+  <meta property="og:image" content="assets/share.jpg" />
+  <meta name="theme-color" content="#0c0b0a" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230c0b0a'/%3E%3Cpath d='M14 50 L32 14 L50 50 M22 36 H42' stroke='%23c9a46a' stroke-width='3' fill='none'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Manrope:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script type="importmap">
+    { "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    } }
+  </script>
+</head>
+<body class="is-loading">
+  <!-- 3D stage -->
+  <canvas id="stage" aria-hidden="true"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- Loader -->
+  <div class="loader" id="loader">
+    <svg class="loader-mark" viewBox="0 0 200 120" aria-hidden="true">
+      <path d="M20 100 L100 20 L180 100 M45 75 H155 M70 100 V60 M130 100 V60" />
+    </svg>
+    <div class="loader-count"><span id="loadNum">0</span><small>%</small></div>
+    <div class="loader-label mono">Drafting the site · sheet A-00</div>
+  </div>
+
+  <!-- Cursor -->
+  <div class="cursor" id="cursor"><span class="cursor-label" id="cursorLabel"></span></div>
+
+  <!-- Nav -->
+  <header class="nav">
+    <a href="#top" class="nav-logo" data-magnetic aria-label="Home">R<i>·</i>S</a>
+    <nav class="nav-links">
+      <a href="#about">Profile</a>
+      <a href="#works">Works</a>
+      <a href="#practice">Practice</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a class="nav-cv" id="cvLink" href="#" download data-magnetic>
+      <span>Download CV</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m0 0l-5-5m5 5l5-5M5 20h14" /></svg>
+    </a>
+  </header>
+
+  <!-- Studio controls (3D) -->
+  <aside class="studio" id="studio" aria-label="3D model controls">
+    <div class="studio-title mono">Studio · Model</div>
+    <div class="studio-modes" role="radiogroup" aria-label="Lighting mode">
+      <button data-mode="blueprint" role="radio" aria-checked="false"><span class="dot"></span>Blueprint</button>
+      <button data-mode="golden" role="radio" aria-checked="true" class="active"><span class="dot"></span>Golden hour</button>
+      <button data-mode="night" role="radio" aria-checked="false"><span class="dot"></span>Night</button>
+    </div>
+    <div class="studio-actions">
+      <button id="explodeBtn" title="Exploded axonometric (E)">Explode <kbd>E</kbd></button>
+      <button id="rebuildBtn" title="Draw the model again (R)">Rebuild <kbd>R</kbd></button>
+    </div>
+    <div class="studio-hint mono">Drag the stage to rotate</div>
+  </aside>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero" data-drag>
+      <div class="hero-meta mono">
+        <span>Sheet A-01</span><span class="rule"></span><span>Selected works <b id="yearsLabel"></b></span>
+      </div>
+      <h1 class="hero-title">
+        <span class="line"><span class="prefix" id="heroPrefix">Ar.</span> <span id="heroFirst">Renuka</span></span>
+        <span class="line"><em id="heroLast"></em></span>
+        <span class="hero-role" id="heroRole">Architect</span>
+      </h1>
+      <p class="hero-tag" id="heroTag"></p>
+      <div class="dimension hero-dim" aria-hidden="true">
+        <span class="tick"></span><span class="dim-line"></span><span class="dim-text mono" id="heroDim">5,447 sq.ft · 01</span><span class="dim-line"></span><span class="tick"></span>
+      </div>
+      <a class="scroll-cue" href="#about"><span class="mono">Scroll to build</span><i></i></a>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="about" id="about" data-drag>
+      <div class="about-card reveal">
+        <div class="arch-frame">
+          <img id="aboutPhoto" alt="Portrait" />
+          <svg class="arch-outline" viewBox="0 0 200 260" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M4 256 V100 A96 96 0 0 1 196 100 V256 Z" />
+          </svg>
+        </div>
+        <div class="about-text">
+          <div class="eyebrow mono">Profile — 01</div>
+          <h2 class="display">Every line,<br /><em>considered.</em></h2>
+          <p id="aboutIntro"></p>
+          <div class="stats" id="stats"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WORKS -->
+    <section class="works" id="works">
+      <div class="works-head">
+        <div>
+          <div class="eyebrow mono">Selected works — 02</div>
+          <h2 class="display">The <em>Collection</em></h2>
+        </div>
+        <div class="filters" role="tablist" aria-label="Filter works">
+          <button class="active" data-filter="all">All <sup id="countAll"></sup></button>
+          <button data-filter="Architecture">Architecture <sup id="countArch"></sup></button>
+          <button data-filter="Interior">Interior <sup id="countInt"></sup></button>
+        </div>
+      </div>
+
+      <!-- Featured horizontal gallery -->
+      <div class="reel" id="reel">
+        <div class="reel-track" id="reelTrack"></div>
+      </div>
+
+      <!-- Index list -->
+      <div class="index-head mono"><span>No.</span><span>Project</span><span>Location</span><span>Type</span><span></span></div>
+      <ol class="index" id="index"></ol>
+      <div class="hover-preview" id="hoverPreview"><img alt="" /></div>
+    </section>
+
+    <!-- PRACTICE -->
+    <section class="practice" id="practice">
+      <div class="eyebrow mono">Practice — 03</div>
+      <h2 class="display">Studio <em>&amp;</em> site</h2>
+      <div class="practice-grid">
+        <div class="timeline" id="timeline"></div>
+        <div class="side">
+          <div class="block">
+            <h3 class="mono">Workshops</h3>
+            <ul class="workshops" id="workshops"></ul>
+          </div>
+          <div class="block">
+            <h3 class="mono">Skills</h3>
+            <ul class="chips" id="skills"></ul>
+          </div>
+          <div class="block">
+            <h3 class="mono">Languages</h3>
+            <p class="langs" id="langs"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="marquee" aria-label="Software">
+      <div class="marquee-track" id="marquee"></div>
+    </div>
+
+    <!-- CONTACT -->
+    <section class="contact" id="contact" data-drag>
+      <div class="eyebrow mono">Contact — 04</div>
+      <div class="contact-card"><img id="contactPhoto" alt="" /><div><b id="contactName"></b><span class="mono">Architect · Available for projects</span></div></div>
+      <h2 class="contact-title">Let's build<br />something <em>timeless.</em></h2>
+      <a class="contact-mail" id="contactMail" data-magnetic></a>
+      <div class="contact-row">
+        <a id="contactPhone" class="pill"></a>
+        <a id="contactWa" class="pill" target="_blank" rel="noopener">WhatsApp</a>
+        <span id="contactLoc" class="pill ghost"></span>
+      </div>
+      <footer class="footer mono">
+        <span>© <span id="yr"></span> <span id="footName"></span></span>
+        <span>All drawings &amp; renders © all rights reserved</span>
+        <a href="#top">Back to top ↑</a>
+      </footer>
+    </section>
+  </main>
+
+  <!-- Project overlay -->
+  <div class="project" id="project" aria-hidden="true" role="dialog" aria-modal="true">
+    <button class="project-close" id="projectClose" aria-label="Close project" data-magnetic>
+      <span></span><span></span>
+    </button>
+    <div class="project-scroll" id="projectScroll"></div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog">
+    <button class="lb-close" id="lbClose" aria-label="Close">Close ✕</button>
+    <button class="lb-nav prev" id="lbPrev" aria-label="Previous">←</button>
+    <div class="lb-stage" id="lbStage"><img id="lbImg" alt="" /></div>
+    <button class="lb-nav next" id="lbNext" aria-label="Next">→</button>
+    <div class="lb-caption mono" id="lbCap"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script src="js/data.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
