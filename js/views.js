@@ -30,6 +30,9 @@ export function createViews() {
   renderer.setSize(innerWidth, innerHeight);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.setClearColor(0x000000, 0);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  const small = matchMedia("(max-width: 820px)").matches;
   const env = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
 
   // soft contact shadow texture
@@ -56,17 +59,33 @@ export function createViews() {
     const scene = new THREE.Scene();
     scene.environment = env;
     const hemi = new THREE.HemisphereLight(0xfff6ea, 0x2a221c, 1);
-    const sun = new THREE.DirectionalLight(0xfff1dc, 2.4); sun.position.set(-12, 20, 14);
+    const sun = new THREE.DirectionalLight(0xfff1dc, 2.4); sun.position.set(-14, 26, 16);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(small ? 512 : 1024, small ? 512 : 1024);
+    Object.assign(sun.shadow.camera, { left: -17, right: 17, top: 17, bottom: -17, near: 1, far: 80 });
+    sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.04; sun.shadow.radius = 4;
+    const rim = new THREE.DirectionalLight(0xc8d8ff, 0.7); rim.position.set(16, 10, -18);
     const fill = new THREE.PointLight(0xffc27a, 0, 40, 1.4); fill.position.set(0, 4, 0);
+    // gallery plinth: stone drum with a gold rim, plus a soft floor shadow
+    const pr = Math.hypot(size.x, size.z) * s * 0.5 * 1.04 + 0.6;
+    const plinthMat = new THREE.MeshStandardMaterial({ color: 0xded6c9, roughness: 0.92 });
+    const baseMat = new THREE.MeshStandardMaterial({ color: 0x2a2623, roughness: 0.6, metalness: 0.3 });
+    const rimMat = new THREE.MeshStandardMaterial({ color: 0xc9a46a, roughness: 0.25, metalness: 1 });
+    const plinth = new THREE.Mesh(new THREE.CylinderGeometry(pr, pr, 0.9, 72), plinthMat);
+    plinth.position.y = -0.45; plinth.receiveShadow = true;
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(pr * 1.035, pr * 1.06, 0.35, 72), baseMat);
+    base.position.y = -1.07;
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(pr, 0.07, 8, 120), rimMat);
+    ring.rotation.x = Math.PI / 2; ring.position.y = 0.01;
     const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false }));
-    shadow.rotation.x = -Math.PI / 2; shadow.scale.set(size.x * s * 1.5, size.z * s * 1.5, 1); shadow.position.y = 0.02;
+    shadow.rotation.x = -Math.PI / 2; shadow.scale.set(pr * 3.2, pr * 3.2, 1); shadow.position.y = -1.24;
     const spinner = new THREE.Group();
-    spinner.add(holder, shadow);
-    scene.add(hemi, sun, fill, spinner);
+    spinner.add(holder, plinth, base, ring, shadow);
+    scene.add(hemi, sun, sun.target, rim, fill, spinner);
 
     const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 400);
     const height = size.y * s;
-    v.camR = 34; v.camY = height * 0.45;
+    v.camR = 40; v.camY = height * 0.45;
 
     // explode vectors per part (in model-local space)
     scene.updateMatrixWorld(true);
@@ -79,7 +98,7 @@ export function createViews() {
         .divideScalar(s);
       p.userData.delay = (w.y / maxY) * 0.7 + Math.random() * 0.15;
     });
-    const mats = Object.values(kit.M);
+    const mats = [...Object.values(kit.M), plinthMat, baseMat, rimMat];
     mats.forEach((m) => (m.userData.op = m.opacity, m.userData.ei = m.emissiveIntensity || 0));
     Object.assign(v, { scene, camera, spinner, kit, mats, hemi, sun, fill, built: true, t0: performance.now(), size: size.clone().multiplyScalar(s) });
     applyMode(v, v.mode, true);
@@ -151,6 +170,7 @@ export function createViews() {
       L[key] += (goal - L[key]) * k;
     }
     v.hemi.intensity = L.hemi; v.sun.intensity = L.sun; v.sun.color.setHex(T.sunColor);
+    v.sun.castShadow = L.solid > 0.5;
     v.fill.intensity = L.glow * 6;
     v.scene.environmentIntensity = L.env;
     v.kit.lineMat.color.setHex(v.lines && v.mode !== "blueprint" ? 0xe6c88f : T.line);
@@ -201,6 +221,20 @@ export function createViews() {
       if (v.layer !== layer) continue;
       const r = v.el.getBoundingClientRect();
       if (r.width < 2 || r.bottom < 0 || r.top > H || r.right < 0 || r.left > W) continue;
+      if (v.custom) {
+        if (!v.built) { Object.assign(v, v.custom({ THREE, env, small })); v.built = true; }
+        v.update(dt, now);
+        v.camera.aspect = r.width / r.height;
+        v.camera.updateProjectionMatrix();
+        renderer.toneMappingExposure = 1;
+        const bottom = H - r.bottom;
+        const x0 = Math.max(0, r.left), y0 = Math.max(0, bottom), x1 = Math.min(W, r.right), y1 = Math.min(H, bottom + r.height);
+        if (x1 <= x0 || y1 <= y0) continue;
+        renderer.setViewport(r.left, bottom, r.width, r.height);
+        renderer.setScissor(x0, y0, x1 - x0, y1 - y0);
+        renderer.render(v.scene, v.camera);
+        continue;
+      }
       if (!v.built) build(v);
       update(v, dt, now);
       const ex = v.explode;
@@ -208,7 +242,7 @@ export function createViews() {
       const fit = Math.max(1, 1.25 / v.camera.aspect);
       const R = v.camR * fit * (1 + ex * 0.35);
       v.camera.position.set(0, v.camY + R * (v.interior ? 0.8 : 0.42) + ex * 6, R * (v.interior ? 0.9 : 1));
-      v.camera.lookAt(0, v.camY * (1 + ex * 0.9), 0);
+      v.camera.lookAt(0, v.camY * (0.72 + ex * 0.9), 0);
       v.camera.updateProjectionMatrix();
       const bottom = H - r.bottom;
       renderer.setViewport(r.left, bottom, r.width, r.height);
@@ -223,8 +257,15 @@ export function createViews() {
   addEventListener("resize", () => renderer.setSize(innerWidth, innerHeight));
   document.addEventListener("visibilitychange", () => (paused = document.hidden));
 
+  /** custom mini-scene: factory({THREE, env, small}) → { scene, camera, update(dt, now) } */
+  function addCustom(el, factory, opts = {}) {
+    const v = { el, custom: factory, layer: opts.layer || "page", built: false };
+    views.add(v);
+    return v;
+  }
+
   return {
-    add,
+    add, addCustom,
     setLayer(l) { layer = l; canvas.dataset.layer = l; canvas.style.zIndex = l === "overlay" ? 71 : 3; },
     removeLayer(l) { [...views].filter((v) => v.layer === l).forEach(dispose); },
   };

@@ -23,6 +23,12 @@ const MODES = {
     line: "#d6e6ff", lineOpacity: 1, solid: 0.025, glow: 0.0,
     sun: "#bcd4ff", sunI: 0.6, hemiI: 0.35, sunPos: [20, 30, 15], exposure: 1.0, bloom: 0.35, fog: 0.012,
   },
+  daylight: {
+    skyTop: "#b9cad8", skyBottom: "#f1ebe1", horizon: "#fff1d8",
+    ground: "#e6dfd2", grid: "#9a7232", gridOpacity: 0.22,
+    line: "#8a6324", lineOpacity: 0.3, solid: 1, glow: 0.0,
+    sun: "#fff4e2", sunI: 3.0, hemiI: 1.15, sunPos: [-18, 30, 20], exposure: 1.0, bloom: 0.12, fog: 0.009,
+  },
   golden: {
     skyTop: "#120d0a", skyBottom: "#3a2414", horizon: "#c27a3e",
     ground: "#16110d", grid: "#c9a46a", gridOpacity: 0.28,

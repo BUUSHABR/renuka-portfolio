@@ -83,6 +83,43 @@ try {
     views.add(el, p.model, { file: p.modelFile, hoverExplode: true });
   });
 } catch (e) { console.warn("models disabled", e); $$(".card-model").forEach((el) => el.remove()); }
+
+/* ---------- Playground: brick wall, workshop gestures, crane ---------- */
+try {
+  if (!views) throw new Error("no webgl");
+  const pg = await import("./playground.js");
+  const on = (el, fn) => { el.addEventListener("pointerenter", fn); el.addEventListener("click", fn); };
+  const wall = pg.brickWall();
+  views.addCustom($("#wallStage"), wall.factory);
+  $$("#skills li").forEach((li) => on(li, () => wall.drop && wall.drop()));
+  const ws = pg.workshops();
+  views.addCustom($("#workshopStage"), ws.factory);
+  $$("#workshops li").forEach((li, i) => on(li, () => {
+    ws.show(i); $$("#workshops li").forEach((x) => x.classList.toggle("on", x === li));
+  }));
+  const cr = pg.crane();
+  views.addCustom($("#craneStage"), cr.factory);
+  $$(".tl-item").forEach((el) => el.addEventListener("pointerenter", () => cr.lift()));
+  $$(".tl-item").forEach((el) => el.addEventListener("click", () => cr.lift()));
+} catch (e) { $$(".mini-stage").forEach((el) => el.remove()); }
+
+/* ---------- Micro-interactions tied to the content ---------- */
+// skills: an architect's dimension line showing each chip's real width
+$$("#skills li").forEach((li) => li.addEventListener("pointerenter", () => {
+  li.dataset.mm = `↔ ${Math.round(li.offsetWidth * 0.2646)} mm`;
+}));
+// languages: greet in each language on hover
+const HELLO = { Tamil: "வணக்கம்", English: "Hello", Telugu: "నమస్కారం", Hindi: "नमस्ते", Kannada: "ನಮಸ್ಕಾರ", Malayalam: "നമസ്കാരം" };
+$("#langs").innerHTML = D.languages.map((l) => `<span class="lang" data-hi="${esc(HELLO[l] || l)}"><b>${esc(l)}</b></span>`).join("<i>·</i>");
+// workshops: rows tilt toward the cursor
+if (!isTouch) $$("#workshops li").forEach((li) => {
+  li.addEventListener("pointermove", (e) => {
+    const r = li.getBoundingClientRect();
+    li.style.setProperty("--rx", `${((e.clientY - r.top) / r.height - 0.5) * -10}deg`);
+    li.style.setProperty("--ry", `${((e.clientX - r.left) / r.width - 0.5) * 10}deg`);
+  });
+  li.addEventListener("pointerleave", () => { li.style.setProperty("--rx", "0deg"); li.style.setProperty("--ry", "0deg"); });
+});
 $("#reel").insertAdjacentHTML("afterend", `<div class="reel-progress"><i id="reelBar"></i></div>`);
 
 $("#index").innerHTML = D.projects
@@ -120,6 +157,8 @@ try {
 }
 
 let userPickedMode = false;
+const isLight = () => document.documentElement.dataset.theme === "light";
+const baseMode = () => (isLight() ? "daylight" : "golden");
 function setMode(name, fromUser) {
   if (!stage) return;
   if (fromUser) userPickedMode = true;
@@ -131,6 +170,7 @@ function setMode(name, fromUser) {
   });
 }
 $$(".studio-modes button").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode, true)));
+if (isLight()) setMode("daylight");
 const explodeBtn = $("#explodeBtn");
 function toggleExplode() {
   if (!stage) return;
@@ -207,8 +247,8 @@ ScrollTrigger.create({
 ScrollTrigger.create({
   trigger: "#contact", start: "top bottom", end: "bottom bottom", scrub: true,
   onUpdate: (s) => { view.contact = s.progress; pushView(); },
-  onEnter: () => !userPickedMode && setMode("night"),
-  onLeaveBack: () => !userPickedMode && setMode("golden"),
+  onEnter: () => !userPickedMode && !isLight() && setMode("night"),
+  onLeaveBack: () => !userPickedMode && setMode(baseMode()),
 });
 const root = document.documentElement;
 const setStage = (v) => {
@@ -216,14 +256,17 @@ const setStage = (v) => {
   document.body.classList.toggle("stage-off", v < 0.2);
   stage && stage.setPaused(v < 0.02 && !$("#project").classList.contains("open") ? true : false);
 };
-ScrollTrigger.create({
-  trigger: "#works", start: "top 80%", end: "top 10%", scrub: true,
-  onUpdate: (s) => { if (view.contact === 0) setStage(1 - s.progress); },
-});
-ScrollTrigger.create({
-  trigger: "#contact", start: "top 90%", end: "top 20%", scrub: true,
-  onUpdate: (s) => setStage(s.progress),
-});
+// stage visibility computed straight from section positions (robust to jumps)
+const clamp01 = (x) => Math.min(1, Math.max(0, x));
+const updStage = () => {
+  const vh = innerHeight;
+  const w = $("#works").getBoundingClientRect().top, c = $("#contact").getBoundingClientRect().top;
+  setStage(c < vh * 0.9 ? clamp01((vh * 0.9 - c) / (vh * 0.7)) : clamp01((w - vh * 0.1) / (vh * 0.7)));
+};
+addEventListener("scroll", updStage, { passive: true });
+addEventListener("resize", updStage);
+lenis && lenis.on("scroll", updStage);
+updStage();
 
 // nav hide on scroll down
 let lastY = 0;
@@ -474,5 +517,37 @@ addEventListener("load", () => ScrollTrigger.refresh());
     const k = e.key.toLowerCase();
     if ((e.ctrlKey || e.metaKey) && (k === "s" || k === "p")) { e.preventDefault(); warn(); }
     if (e.key === "F12" || ((e.ctrlKey || e.metaKey) && (k === "u" || (e.shiftKey && ["i", "j", "c"].includes(k)))) || (e.metaKey && e.altKey && ["i", "j", "c", "u"].includes(k))) { e.preventDefault(); warn(); }
+  });
+})();
+
+/* ---------- Light / dark theme ---------- */
+(() => {
+  const btn = $("#themeToggle");
+  const meta = document.querySelector('meta[name="theme-color"]');
+  const sync = () => {
+    const light = isLight();
+    btn.setAttribute("aria-label", light ? "Switch to dark theme" : "Switch to light theme");
+    meta && meta.setAttribute("content", light ? "#f5f0e7" : "#0c0b0a");
+  };
+  sync();
+  btn.addEventListener("click", () => {
+    const next = isLight() ? "dark" : "light";
+    const r = btn.getBoundingClientRect();
+    const wipe = document.createElement("div");
+    wipe.className = "theme-wipe";
+    wipe.style.background = next === "light" ? "#f5f0e7" : "#0c0b0a";
+    wipe.style.setProperty("--tx", `${r.left + r.width / 2}px`);
+    wipe.style.setProperty("--ty", `${r.top + r.height / 2}px`);
+    document.body.appendChild(wipe);
+    requestAnimationFrame(() => requestAnimationFrame(() => wipe.classList.add("go")));
+    setTimeout(() => {
+      document.documentElement.dataset.theme = next;
+      try { localStorage.setItem("theme", next); } catch (e) {}
+      sync();
+      if (!userPickedMode) setMode(baseMode());
+      wipe.style.transition = "opacity .5s";
+      wipe.style.opacity = "0";
+      setTimeout(() => wipe.remove(), 550);
+    }, 650);
   });
 })();

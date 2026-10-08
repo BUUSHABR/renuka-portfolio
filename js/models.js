@@ -35,6 +35,7 @@ export function makeKit() {
     if (o.rx) pivot.rotation.x = o.rx;
     if (o.rz) pivot.rotation.z = o.rz;
     const mesh = new THREE.Mesh(geo, mat);
+    mesh.castShadow = !(mat.opacity < 1); mesh.receiveShadow = true;
     pivot.add(mesh);
     if (o.edges !== false) pivot.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 30), lineMat));
     parent.add(pivot);
@@ -65,6 +66,7 @@ export function makeKit() {
     const im = new THREE.InstancedMesh(g, m, positions.length);
     const mx = new THREE.Matrix4();
     positions.forEach(([x, y, z, ry = 0], i) => im.setMatrixAt(i, mx.makeRotationY(ry).setPosition(x, y, z)));
+    im.castShadow = im.receiveShadow = true;
     const pivot = new THREE.Group();
     pivot.add(im);
     p.add(pivot);
